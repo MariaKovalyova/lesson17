@@ -56,6 +56,24 @@ class MovieView(Resource):
             return movie_schema.dump(movie), 200
         return "Фильм не найден", 404
 
+    def put(self, movie_id: int):  # Обновление объекта по ИД
+        movie = db.session.query(Movie).get(movie_id)  # Запрос из БД нужного объекта по ИД
+        if not movie:  # Если объекта с нужным ИД не найдено, то возврат ошибки
+            return f"Такого фильма c ид {movie_id} нет", 404
+        req_json = request.json
+
+        movie.title = req_json['title']
+        movie.description = req_json['description']
+        movie.trailer = req_json['trailer']
+        movie.year = req_json['year']
+        movie.rating = req_json['rating']
+        movie.genre_id = req_json['genre_id']
+        movie.director_id = req_json['director_id']
+
+        db.session.add(movie)
+        db.session.commit()
+        return f"Фильм c ид {movie_id} обновлён", 204
+
     def delete(self, movie_id: int):  # Удаление объекта по ид
         movie_to_del = db.session.query(Movie).get(movie_id)
         if not movie_to_del:
